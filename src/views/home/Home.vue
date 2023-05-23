@@ -1,6 +1,12 @@
 <template>
   <div id="home">
     <nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
+    <tab-control :titles="['流行','新款','精选']"
+                 @tabClick="tabClick"
+                 ref="tabControl1"
+                 class="tab-control"
+                 v-show="isTabFixed"
+    />
 
     <scroll class="content" ref="scroll"
             :probe-type="3"
@@ -12,7 +18,8 @@
       <feature-view/>
       <tab-control :titles="['流行','新款','精选']"
                    @tabClick="tabClick"
-                    ref="tabControl"/>
+                    ref="tabControl2"
+      />
       <goods-list :goods="showGoods"/>
     </scroll>
 
@@ -53,16 +60,20 @@ export default {
   },
   data(){
     return{
-        banners:[],
-        recommends: [],
-        goods:{
-          'pop': {page: 0, list: []},
-          'new': {page: 0, list: []},
-          'sell': {page: 0, list: []},
-        },
-        currentType: 'pop',
-        isShowBackTop: false,
-        tabOffsetTop: 0
+      banners:[],
+      recommends: [],
+      goods:{
+        'pop': {page: 0, list: []},
+        'new': {page: 0, list: []},
+        'sell': {page: 0, list: []},
+      },
+      currentType: 'pop',
+      isShowBackTop: false,
+      // tabControl离顶距离
+      tabOffsetTop: 0,
+      // tabControl是否吸顶
+      isTabFixed: false
+
     }
   },
   created() {
@@ -111,13 +122,19 @@ export default {
         case 2: this.currentType = 'sell'
               break
       }
+      this.$refs.tabControl1.currentIndex = index
+      this.$refs.tabControl2.currentIndex = index
     },
     backClick() {
       this.$refs.scroll.scrollTo(0,0,500)
     },
     contentScroll(position) {
+      // 1、判断BackTop是否显示
       // console.log(position);
       this.isShowBackTop=position.y <-1000
+
+      // 2、判断tabControl是否吸顶(position: fixed)
+      this.isTabFixed = (-position.y > this.tabOffsetTop)
     },
     loadMore() {
       // console.log("上拉加载更多");
@@ -127,7 +144,7 @@ export default {
     },
     swiperImageLoad() {
       // console.log(this.$refs.tabControl.$el.offsetTop);
-      this.tabOffsetTop = this.$refs.tabControl.$el.offsetTop
+      this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop
     },
 
     /**
@@ -155,7 +172,7 @@ export default {
 
 <style scoped>
   #home {
-    padding-top: 44px;
+    /*padding-top: 44px;*/
     /*position: relative;*/
 
     /* vh: viewpoint height 视口高度 */
@@ -164,11 +181,12 @@ export default {
   .home-nav {
     background-color: var(--color-tint);
     color: #ffffff;
-    position: fixed;
-    left: 0;
-    right: 0;
-    top: 0;
-    z-index: 9;
+
+    /*position: fixed;*/
+    /*left: 0;*/
+    /*right: 0;*/
+    /*top: 0;*/
+    /*z-index: 9;*/
   }
 
   /*.tab-control{*/
@@ -187,4 +205,8 @@ export default {
     overflow: hidden;
 
   }
+  .tab-control {
+
+  }
+
 </style>
