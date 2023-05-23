@@ -7,11 +7,12 @@
             @scroll="contentScroll"
             :pull-up-load="true"
             @pullingUp="loadMore" >
-      <home-swiper :banners="banners"/>
+      <home-swiper :banners="banners" @swiperImageLoad="swiperImageLoad"/>
       <recommend-view :recommends="recommends"/>
       <feature-view/>
-      <tab-control class="tab-control" :titles="['流行','新款','精选']"
-                   @tabClick="tabClick"/>
+      <tab-control :titles="['流行','新款','精选']"
+                   @tabClick="tabClick"
+                    ref="tabControl"/>
       <goods-list :goods="showGoods"/>
     </scroll>
 
@@ -60,7 +61,8 @@ export default {
           'sell': {page: 0, list: []},
         },
         currentType: 'pop',
-        isShowBackTop: false
+        isShowBackTop: false,
+        tabOffsetTop: 0
     }
   },
   created() {
@@ -79,6 +81,7 @@ export default {
     }
   },
   mounted() {
+    // 1.图片加载事件监听
     const refresh = debounce(this.$refs.scroll.refresh, 100)
 
     this.$bus.$on('itemImageLoad',() =>{
@@ -86,6 +89,14 @@ export default {
       // this.$refs.scroll.refresh()
       refresh()
     })
+
+    // 2.获取tabControl的offsetTop
+    // 所有的组件都有一个属性：$el  用于获取组件中的元素
+    // console.log(this.$refs);
+    // console.log(this.$refs.tabControl.$el.offsetTop);
+    // this.tabOffsetTop = this.$refs.tabControl.$el.offsetTop
+
+
   },
   methods: {
     /**
@@ -113,6 +124,10 @@ export default {
       this.getHomeGoods(this.currentType)
       //  加载完成后调用刷新方法，用来重新计算可滚动区域，解决滚不动的问题
       this.$refs.scroll.scroll.refresh()
+    },
+    swiperImageLoad() {
+      // console.log(this.$refs.tabControl.$el.offsetTop);
+      this.tabOffsetTop = this.$refs.tabControl.$el.offsetTop
     },
 
     /**
@@ -156,11 +171,11 @@ export default {
     z-index: 9;
   }
 
-  .tab-control{
-    position: sticky;
-    top: 44px;
-    z-index: 9;
-  }
+  /*.tab-control{*/
+  /*  position: sticky;*/
+  /*  top: 44px;*/
+  /*  z-index: 9;*/
+  /*}*/
 
   .content {
     /*position: absolute;*/
