@@ -72,7 +72,9 @@ export default {
       // tabControl离顶距离
       tabOffsetTop: 0,
       // tabControl是否吸顶
-      isTabFixed: false
+      isTabFixed: false,
+      // 记录首页离开的位置，用来保留后续切回位置
+      saveY: 0
 
     }
   },
@@ -90,6 +92,16 @@ export default {
     showGoods() {
       return this.goods[this.currentType].list
     }
+  },
+  activated() {
+    // console.log('activated');
+    this.$refs.scroll.scroll.scrollTo(0, this.saveY, 0)
+    this.$refs.scroll.refresh()
+  },
+  deactivated() {
+    // console.log('deactivated');
+    this.saveY = this.$refs.scroll.getScrollY()
+    // console.log(this.saveY);
   },
   mounted() {
     // 1.图片加载事件监听
